@@ -36,8 +36,8 @@ namespace io
 //
 // Example:
 //   using namespace redbud::io;
-//   std::cout << fg::red << "This text has a red foreground color\n";
-//   std::cout << bg::green << "This text has a green background color\n"
+//   std::cout << fg::RED << "This text has a RED foreground color\n";
+//   std::cout << bg::GREEN << "This text has a GREEN background color\n"
 // ============================================================================
 
 // Sets the text format, some of them is not widely supported.

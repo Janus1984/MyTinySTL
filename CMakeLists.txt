@@ -22,7 +22,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 	endif()
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall -Wextra -Wno-sign-compare")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall -Wextra -Wno-sign-compare -fuse-ld=lld")
 
 	# set(EXTRA_CXX_FLAGS -Weffc++ -Wswitch-default -Wfloat-equal -Wconversion -Wimplicit-fallthrough)
 	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "3.5.0")
@@ -30,6 +30,12 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	else()
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 	endif()
+endif()
+
+option(address_sanitizer "open address sanitizer" ON)
+
+if(address_sanitizer)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=memory -fPIE -pie -fno-omit-frame-pointer -g")
 endif()
 
 message(STATUS "The cmake_cxx_flags is: ${CMAKE_CXX_FLAGS}")

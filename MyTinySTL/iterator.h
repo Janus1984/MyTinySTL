@@ -117,20 +117,20 @@ struct is_iterator : public m_bool_constant<is_input_iterator<Iterator>::value |
 
 // 萃取某个迭代器的 category
 template <class Iterator>
-typename iterator_traits<Iterator>::iterator_category iterator_category(const Iterator&) {
+typename iterator_traits<Iterator>::iterator_category iterator_category(const Iterator& /*unused*/) {
     typedef typename iterator_traits<Iterator>::iterator_category Category;
     return Category();
 }
 
 // 萃取某个迭代器的 distance_type
 template <class Iterator>
-typename iterator_traits<Iterator>::difference_type* distance_type(const Iterator&) {
+typename iterator_traits<Iterator>::difference_type* distance_type(const Iterator& /*unused*/) {
     return static_cast<typename iterator_traits<Iterator>::difference_type*>(0);
 }
 
 // 萃取某个迭代器的 value_type
 template <class Iterator>
-typename iterator_traits<Iterator>::value_type* value_type(const Iterator&) {
+typename iterator_traits<Iterator>::value_type* value_type(const Iterator& /*unused*/) {
     return static_cast<typename iterator_traits<Iterator>::value_type*>(0);
 }
 
@@ -139,7 +139,7 @@ typename iterator_traits<Iterator>::value_type* value_type(const Iterator&) {
 // distance 的 input_iterator_tag 的版本
 template <class InputIterator>
 typename iterator_traits<InputIterator>::difference_type distance_dispatch(InputIterator first, InputIterator last,
-                                                                           input_iterator_tag) {
+                                                                           input_iterator_tag /*unused*/) {
     typename iterator_traits<InputIterator>::difference_type n = 0;
     while (first != last) {
         ++first;
@@ -151,7 +151,7 @@ typename iterator_traits<InputIterator>::difference_type distance_dispatch(Input
 // distance 的 random_access_iterator_tag 的版本
 template <class RandomIter>
 typename iterator_traits<RandomIter>::difference_type distance_dispatch(RandomIter first, RandomIter last,
-                                                                        random_access_iterator_tag) {
+                                                                        random_access_iterator_tag /*unused*/) {
     return last - first;
 }
 
@@ -164,7 +164,7 @@ typename iterator_traits<InputIterator>::difference_type distance(InputIterator 
 
 // advance 的 input_iterator_tag 的版本
 template <class InputIterator, class Distance>
-void advance_dispatch(InputIterator& i, Distance n, input_iterator_tag) {
+void advance_dispatch(InputIterator& i, Distance n, input_iterator_tag /*unused*/) {
     while (n--) {
         ++i;
     }
@@ -172,16 +172,21 @@ void advance_dispatch(InputIterator& i, Distance n, input_iterator_tag) {
 
 // advance 的 bidirectional_iterator_tag 的版本
 template <class BidirectionalIterator, class Distance>
-void advance_dispatch(BidirectionalIterator& i, Distance n, bidirectional_iterator_tag) {
-    if (n >= 0)
-        while (n--) ++i;
-    else
-        while (n++) --i;
+void advance_dispatch(BidirectionalIterator& i, Distance n, bidirectional_iterator_tag /*unused*/) {
+    if (n >= 0) {
+        while (n--) {
+            ++i;
+        }
+    } else {
+        while (n++) {
+            --i;
+        }
+    }
 }
 
 // advance 的 random_access_iterator_tag 的版本
 template <class RandomIter, class Distance>
-void advance_dispatch(RandomIter& i, Distance n, random_access_iterator_tag) {
+void advance_dispatch(RandomIter& i, Distance n, random_access_iterator_tag /*unused*/) {
     i += n;
 }
 
@@ -214,6 +219,9 @@ public:
     reverse_iterator() = default;
     explicit reverse_iterator(iterator_type i) : current(i) {}
     reverse_iterator(const self& rhs) : current(rhs.current) {}
+    // reverse_iterator(self&& rhs) = delete;
+    // self& operator=(const self& ths) = delete;
+    // self& operator=(self&& ths) = delete;
 
     // 取出对应的正向迭代器
     iterator_type base() const { return current; }

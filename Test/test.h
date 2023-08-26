@@ -33,17 +33,17 @@ namespace test {
 // 封装单个测试案例
 class TestCase {
 public:
+    virtual ~TestCase() = default;
     // 构造函数，接受一个字符串代表案例名称
-    TestCase(const char* case_name) : testcase_name(case_name) {}
+    explicit TestCase(const char* case_name) : testcase_name(case_name) {}
 
     // 一个纯虚函数，用于测试案例
     virtual void Run() = 0;
 
-public:
     const char* testcase_name; // 测试案例的名称
-    int nTestResult;           // 测试案例的执行结果
-    double nFailed;            // 测试失败的案例数
-    double nPassed;            // 测试通过的案例数
+    int nTestResult{};         // 测试案例的执行结果
+    double nFailed{};          // 测试失败的案例数
+    double nPassed{};          // 测试通过的案例数
 };
 
 // UnitTest 类
@@ -58,7 +58,6 @@ public:
 
     void Run();
 
-public:
     TestCase* CurrentTestCase; // 当前执行的测试案例
     double nPassed;            // 通过案例数
     double nFailed;            // 失败案例数
@@ -78,26 +77,28 @@ TestCase* UnitTest::RegisterTestCase(TestCase* testcase) {
 }
 
 void UnitTest::Run() {
-    for (auto it : testcases_) {
-        TestCase* testcase    = it;
-        CurrentTestCase       = testcase;
+    for (auto* it : testcases_) {
+        TestCase* testcase = it;
+        CurrentTestCase = testcase;
         testcase->nTestResult = 1;
-        testcase->nFailed     = 0;
-        testcase->nPassed     = 0;
+        testcase->nFailed = 0;
+        testcase->nPassed = 0;
         std::cout << GREEN << "============================================\n";
         std::cout << GREEN << " Run TestCase:" << testcase->testcase_name << "\n";
         testcase->Run();
-        if (testcase->nFailed == 0)
+        if (testcase->nFailed == 0) {
             std::cout << GREEN;
-        else
+        } else {
             std::cout << RED;
+        }
         std::cout << " " << testcase->nPassed << " / " << testcase->nFailed + testcase->nPassed << " Cases passed. ( "
                   << testcase->nPassed / (testcase->nFailed + testcase->nPassed) * 100 << "% )\n";
         std::cout << GREEN << " End TestCase:" << testcase->testcase_name << "\n";
-        if (testcase->nTestResult)
+        if (testcase->nTestResult != 0) {
             ++nPassed;
-        else
+        } else {
             ++nFailed;
+        }
     }
     std::cout << GREEN << "============================================\n";
     std::cout << GREEN << " Total TestCase : " << nPassed + nFailed << "\n";
@@ -169,7 +170,7 @@ EXPECT_FALSE(isPrime(3));    失败
 
 #define EXPECT_FALSE(Condition)                                        \
     do {                                                               \
-        if (!Condition) {                                              \
+        if (!(Condition)) {                                            \
             UnitTest::GetInstance()->CurrentTestCase->nPassed++;       \
             std::cout << GREEN << " EXPECT_FALSE succeeded!\n";        \
         } else {                                                       \
@@ -207,85 +208,85 @@ EXPECT_LT(len, v.size());
 */
 #define EXPECT_EQ(v1, v2)                                              \
     do {                                                               \
-        if (v1 == v2) {                                                \
+        if ((v1) == (v2)) {                                            \
             UnitTest::GetInstance()->CurrentTestCase->nPassed++;       \
             std::cout << GREEN << " EXPECT_EQ succeeded!\n";           \
         } else {                                                       \
             UnitTest::GetInstance()->CurrentTestCase->nTestResult = 0; \
             UnitTest::GetInstance()->CurrentTestCase->nFailed++;       \
             std::cout << RED << " EXPECT_EQ failed!\n";                \
-            std::cout << RED << " Expect:" << v1 << "\n";              \
-            std::cout << RED << " Actual:" << v2 << "\n";              \
+            std::cout << RED << " Expect:" << (v1) << "\n";            \
+            std::cout << RED << " Actual:" << (v2) << "\n";            \
         }                                                              \
     } while (0)
 
 #define EXPECT_NE(v1, v2)                                              \
     do {                                                               \
-        if (v1 != v2) {                                                \
+        if ((v1) != (v2)) {                                            \
             UnitTest::GetInstance()->CurrentTestCase->nPassed++;       \
             std::cout << GREEN << " EXPECT_NE succeeded!\n";           \
         } else {                                                       \
             UnitTest::GetInstance()->CurrentTestCase->nTestResult = 0; \
             UnitTest::GetInstance()->CurrentTestCase->nFailed++;       \
             std::cout << RED << " EXPECT_NE failed!\n";                \
-            std::cout << RED << " Expect:" << v1 << "\n";              \
-            std::cout << RED << " Actual:" << v2 << "\n";              \
+            std::cout << RED << " Expect:" << (v1) << "\n";            \
+            std::cout << RED << " Actual:" << (v2) << "\n";            \
         }                                                              \
     } while (0)
 
 #define EXPECT_LT(v1, v2)                                              \
     do {                                                               \
-        if (v1 < v2) {                                                 \
+        if ((v1) < (v2)) {                                             \
             UnitTest::GetInstance()->CurrentTestCase->nPassed++;       \
             std::cout << GREEN << " EXPECT_LT succeeded!\n";           \
         } else {                                                       \
             UnitTest::GetInstance()->CurrentTestCase->nTestResult = 0; \
             UnitTest::GetInstance()->CurrentTestCase->nFailed++;       \
             std::cout << RED << " EXPECT_LT failed!\n";                \
-            std::cout << RED << " Expect:" << v1 << "\n";              \
-            std::cout << RED << " Actual:" << v2 << "\n";              \
+            std::cout << RED << " Expect:" << (v1) << "\n";            \
+            std::cout << RED << " Actual:" << (v2) << "\n";            \
         }                                                              \
     } while (0)
 
 #define EXPECT_LE(v1, v2)                                              \
     do {                                                               \
-        if (v1 <= v2) {                                                \
+        if ((v1) <= (v2)) {                                            \
             UnitTest::GetInstance()->CurrentTestCase->nPassed++;       \
             std::cout << GREEN << " EXPECT_LE succeeded!\n";           \
         } else {                                                       \
             UnitTest::GetInstance()->CurrentTestCase->nTestResult = 0; \
             UnitTest::GetInstance()->CurrentTestCase->nFailed++;       \
             std::cout << RED << " EXPECT_LE failed!\n";                \
-            std::cout << RED << " Expect:" << v1 << "\n";              \
-            std::cout << RED << " Actual:" << v2 << "\n";              \
+            std::cout << RED << " Expect:" << (v1) << "\n";            \
+            std::cout << RED << " Actual:" << (v2) << "\n";            \
         }                                                              \
     } while (0)
 
 #define EXPECT_GT(v1, v2)                                              \
     do {                                                               \
-        if (v1 > v2) {                                                 \
+        if ((v1) > (v2)) {                                             \
             UnitTest::GetInstance()->CurrentTestCase->nPassed++;       \
             std::cout << GREEN << " EXPECT_GT succeeded!\n";           \
         } else {                                                       \
             UnitTest::GetInstance()->CurrentTestCase->nTestResult = 0; \
             UnitTest::GetInstance()->CurrentTestCase->nFailed++;       \
             std::cout << RED << " EXPECT_GT failed!\n";                \
-            std::cout << RED << " Expect:" << v1 << "\n";              \
-            std::cout << RED << " Actual:" << v2 << "\n";              \
+            std::cout << RED << " Expect:" << (v1) << "\n";            \
+            std::cout << RED << " Actual:" << (v2) << "\n";            \
         }                                                              \
     } while (0)
 
 #define EXPECT_GE(v1, v2)                                              \
     do {                                                               \
-        if (v1 >= v2) {                                                \
+        if ((v1) >= (v2)) {                                            \
             UnitTest::GetInstance()->CurrentTestCase->nPassed++;       \
             std::cout << GREEN << " EXPECT_GE succeeded!\n";           \
         } else {                                                       \
             UnitTest::GetInstance()->CurrentTestCase->nTestResult = 0; \
             UnitTest::GetInstance()->CurrentTestCase->nFailed++;       \
             std::cout << RED << " EXPECT_GE failed!\n";                \
-            std::cout << RED << " Expect:" << v1 << "\n";              \
-            std::cout << RED << " Actual:" << v2 << "\n";              \
+            std::cout << RED << " Expect:" << (v1) << "\n";            \
+            std::cout << RED << " Actual:" << (v2) << "\n";            \
         }                                                              \
     } while (0)
 
@@ -311,22 +312,22 @@ EXPECT_STRNE(" ", s1);    通过
 
 #define EXPECT_STREQ(s1, s2)                                               \
     do {                                                                   \
-        if (s1 == NULL || s2 == NULL) {                                    \
-            if (s1 == NULL && s2 == NULL) {                                \
+        if ((s1) == NULL || (s2) == NULL) {                                \
+            if ((s1) == NULL && (s2) == NULL) {                            \
                 UnitTest::GetInstance()->CurrentTestCase->nPassed++;       \
                 std::cout << GREEN << " EXPECT_STRED succeeded!\n";        \
             } else {                                                       \
                 UnitTest::GetInstance()->CurrentTestCase->nTestResult = 0; \
                 UnitTest::GetInstance()->CurrentTestCase->nFailed++;       \
                 std::cout << RED << " EXPECT_STRED failed!\n";             \
-                if (s1 == NULL)                                            \
+                if ((s1) == NULL)                                          \
                     std::cout << " Expect: NULL\n";                        \
                 else                                                       \
-                    std::cout << " Expect:\"" << s1 << "\"\n";             \
-                if (s2 == NULL)                                            \
+                    std::cout << " Expect:\"" << (s1) << "\"\n";           \
+                if ((s2) == NULL)                                          \
                     std::cout << " Actual: NULL\n";                        \
                 else                                                       \
-                    std::cout << " Actual:\"" << s2 << "\"\n";             \
+                    std::cout << " Actual:\"" << (s2) << "\"\n";           \
             }                                                              \
         } else if (strcmp(s1, s2) == 0) {                                  \
             UnitTest::GetInstance()->CurrentTestCase->nPassed++;           \
@@ -335,29 +336,29 @@ EXPECT_STRNE(" ", s1);    通过
             UnitTest::GetInstance()->CurrentTestCase->nTestResult = 0;     \
             UnitTest::GetInstance()->CurrentTestCase->nFailed++;           \
             std::cout << RED << " EXPECT_STRED failed!\n";                 \
-            std::cout << RED << " Expect:\"" << s1 << "\"\n";              \
-            std::cout << RED << " Actual:\"" << s2 << "\"\n";              \
+            std::cout << RED << " Expect:\"" << (s1) << "\"\n";            \
+            std::cout << RED << " Actual:\"" << (s2) << "\"\n";            \
         }                                                                  \
     } while (0)
 
 #define EXPECT_STRNE(s1, s2)                                               \
     do {                                                                   \
-        if (s1 == NULL || s2 == NULL) {                                    \
-            if (s1 != NULL || s2 != NULL) {                                \
+        if ((s1) == NULL || (s2) == NULL) {                                \
+            if ((s1) != NULL || (s2) != NULL) {                            \
                 UnitTest::GetInstance()->CurrentTestCase->nPassed++;       \
                 std::cout << GREEN << " EXPECT_STRNE succeeded!\n";        \
             } else {                                                       \
                 UnitTest::GetInstance()->CurrentTestCase->nTestResult = 0; \
                 UnitTest::GetInstance()->CurrentTestCase->nFailed++;       \
                 std::cout << RED << " EXPECT_STRNE failed!\n";             \
-                if (s1 == NULL)                                            \
+                if ((s1) == NULL)                                          \
                     std::cout << " Expect: NULL\n";                        \
                 else                                                       \
-                    std::cout << " Expect:\"" << s1 << "\"\n";             \
-                if (s2 == NULL)                                            \
+                    std::cout << " Expect:\"" << (s1) << "\"\n";           \
+                if ((s2) == NULL)                                          \
                     std::cout << " Actual: NULL\n";                        \
                 else                                                       \
-                    std::cout << " Actual:\"" << s2 << "\"\n";             \
+                    std::cout << " Actual:\"" << (s2) << "\"\n";           \
             }                                                              \
         } else if (strcmp(s1, s2) != 0) {                                  \
             UnitTest::GetInstance()->CurrentTestCase->nPassed++;           \
@@ -366,8 +367,8 @@ EXPECT_STRNE(" ", s1);    通过
             UnitTest::GetInstance()->CurrentTestCase->nTestResult = 0;     \
             UnitTest::GetInstance()->CurrentTestCase->nFailed++;           \
             std::cout << RED << " EXPECT_STRNE failed!\n";                 \
-            std::cout << RED << " Expect:\"" << s1 << "\"\n";              \
-            std::cout << RED << " Actual:\"" << s2 << "\"\n";              \
+            std::cout << RED << " Expect:\"" << (s1) << "\"\n";            \
+            std::cout << RED << " Actual:\"" << (s2) << "\"\n";            \
         }                                                                  \
     } while (0)
 
@@ -400,35 +401,35 @@ EXPECT_PTR_RANGE_EQ(a, b, 4);               通过
 */
 #define EXPECT_PTR_EQ(p1, p2)                                          \
     do {                                                               \
-        if (*p1 == *p2) {                                              \
+        if (*(p1) == *(p2)) {                                          \
             UnitTest::GetInstance()->CurrentTestCase->nPassed++;       \
             std::cout << GREEN << " EXPECT_PTR_EQ succeeded!\n";       \
         } else {                                                       \
             UnitTest::GetInstance()->CurrentTestCase->nTestResult = 0; \
             UnitTest::GetInstance()->CurrentTestCase->nFailed++;       \
             std::cout << RED << " EXPECT_PTR_EQ failed!\n";            \
-            std::cout << RED << " Expect:" << *p1 << "\n";             \
-            std::cout << RED << " Actual:" << *p2 << "\n";             \
+            std::cout << RED << " Expect:" << *(p1) << "\n";           \
+            std::cout << RED << " Actual:" << *(p2) << "\n";           \
         }                                                              \
     } while (0)
 
 #define EXPECT_PTR_NE(p1, p2)                                          \
     do {                                                               \
-        if (*p1 != *p2) {                                              \
+        if (*(p1) != *(p2)) {                                          \
             UnitTest::GetInstance()->CurrentTestCase->nPassed++;       \
             std::cout << GREEN << " EXPECT_PTR_NE succeeded!\n";       \
         } else {                                                       \
             UnitTest::GetInstance()->CurrentTestCase->nTestResult = 0; \
             UnitTest::GetInstance()->CurrentTestCase->nFailed++;       \
             std::cout << RED << " EXPECT_PTR_NE failed!\n";            \
-            std::cout << RED << " Expect:" << *p1 << "\n";             \
-            std::cout << RED << " Actual:" << *p2 << "\n";             \
+            std::cout << RED << " Expect:" << *(p1) << "\n";           \
+            std::cout << RED << " Actual:" << *(p2) << "\n";           \
         }                                                              \
     } while (0)
 
 #define EXPECT_PTR_RANGE_EQ(p1, p2, len)                               \
     do {                                                               \
-        if (std::equal(p1, p1 + len, p2)) {                            \
+        if (std::equal(p1, (p1) + (len), p2)) {                        \
             UnitTest::GetInstance()->CurrentTestCase->nPassed++;       \
             std::cout << GREEN << " EXPECT_PTR_RANGE_EQ succeeded!\n"; \
         } else {                                                       \
@@ -440,7 +441,7 @@ EXPECT_PTR_RANGE_EQ(a, b, 4);               通过
 
 #define EXPECT_PTR_RANGE_NE(p1, p2, len)                               \
     do {                                                               \
-        if (!std::equal(p1, p1 + len, p2)) {                           \
+        if (!std::equal(p1, (p1) + (len), p2)) {                       \
             UnitTest::GetInstance()->CurrentTestCase->nPassed++;       \
             std::cout << GREEN << " EXPECT_PTR_RANGE_NE succeeded!\n"; \
         } else {                                                       \
@@ -519,13 +520,13 @@ EXPECT_CON_EQ(v1, v3)   ok
 #define LEN3 10000000
 #endif
 
-#define SCALE_LLL(N) (N * 20)
-#define SCALE_LL(N) (N * 10)
-#define SCALE_L(N) (N * 5)
+#define SCALE_LLL(N) ((N)*20)
+#define SCALE_LL(N) ((N)*10)
+#define SCALE_L(N) ((N)*5)
 #define SCALE_M(N) (N)
-#define SCALE_S(N) (N / 5)
-#define SCALE_SS(N) (N / 10)
-#define SCALE_SSS(N) (N / 20)
+#define SCALE_S(N) ((N) / 5)
+#define SCALE_SS(N) ((N) / 10)
+#define SCALE_SSS(N) ((N) / 20)
 
 #define WIDE 14
 
@@ -533,18 +534,18 @@ EXPECT_CON_EQ(v1, v3)   ok
 #define PASSED std::cout << "[ PASSED ]\n"
 
 // 遍历输出容器
-#define COUT(container)                                   \
-    do {                                                  \
-        std::string con_name = #container;                \
-        std::cout << " " << con_name << " :";             \
-        for (auto it : container) std::cout << " " << it; \
-        std::cout << "\n";                                \
+#define COUT(container)                                     \
+    do {                                                    \
+        std::string con_name = #container;                  \
+        std::cout << " " << con_name << " :";               \
+        for (auto it : (container)) std::cout << " " << it; \
+        std::cout << "\n";                                  \
     } while (0)
 
-#define STR_COUT(str)                                         \
-    do {                                                      \
-        std::string str_name = #str;                          \
-        std::cout << " " << str_name << " : " << str << "\n"; \
+#define STR_COUT(str)                                           \
+    do {                                                        \
+        std::string str_name = #str;                            \
+        std::cout << " " << str_name << " : " << (str) << "\n"; \
     } while (0)
 
 // 输出容器调用函数后的结果
@@ -565,15 +566,17 @@ EXPECT_CON_EQ(v1, v3)   ok
     } while (0)
 
 // 输出容器调用函数的值
-#define FUN_VALUE(fun)                                        \
-    do {                                                      \
-        std::string fun_name = #fun;                          \
-        std::cout << " " << fun_name << " : " << fun << "\n"; \
+#define FUN_VALUE(fun)                                          \
+    do {                                                        \
+        std::string fun_name = #fun;                            \
+        std::cout << " " << fun_name << " : " << (fun) << "\n"; \
     } while (0)
 
 // 输出测试数量级
-void test_len(size_t len1, size_t len2, size_t len3, size_t wide) {
-    std::string str1, str2, str3;
+void test_len(size_t len1, size_t len2, size_t len3, int wide) {
+    std::string str1;
+    std::string str2;
+    std::string str3;
     std::stringstream ss;
     ss << len1 << " " << len2 << " " << len3;
     ss >> str1 >> str2 >> str3;
@@ -595,8 +598,8 @@ void test_len(size_t len1, size_t len2, size_t len3, size_t wide) {
         mode c;                                                                             \
         char buf[10];                                                                       \
         start = clock();                                                                    \
-        for (size_t i = 0; i < count; ++i) c.fun(arg);                                      \
-        end   = clock();                                                                    \
+        for (size_t i = 0; i < (count); ++i) c.fun(arg);                                    \
+        end = clock();                                                                      \
         int n = static_cast<int>(static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000); \
         std::snprintf(buf, sizeof(buf), "%d", n);                                           \
         std::string t = buf;                                                                \
@@ -611,8 +614,8 @@ void test_len(size_t len1, size_t len2, size_t len3, size_t wide) {
         mode c;                                                                             \
         char buf[10];                                                                       \
         start = clock();                                                                    \
-        for (size_t i = 0; i < count; ++i) c.fun(c.arg1(), arg2);                           \
-        end   = clock();                                                                    \
+        for (size_t i = 0; i < (count); ++i) c.fun(c.arg1(), arg2);                         \
+        end = clock();                                                                      \
         int n = static_cast<int>(static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000); \
         std::snprintf(buf, sizeof(buf), "%d", n);                                           \
         std::string t = buf;                                                                \
@@ -626,10 +629,10 @@ void test_len(size_t len1, size_t len2, size_t len3, size_t wide) {
         clock_t start, end;                                                                 \
         mode::list<int> l;                                                                  \
         char buf[10];                                                                       \
-        for (size_t i = 0; i < count; ++i) l.insert(l.end(), rand());                       \
+        for (size_t i = 0; i < (count); ++i) l.insert(l.end(), rand());                     \
         start = clock();                                                                    \
         l.sort();                                                                           \
-        end   = clock();                                                                    \
+        end = clock();                                                                      \
         int n = static_cast<int>(static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000); \
         std::snprintf(buf, sizeof(buf), "%d", n);                                           \
         std::string t = buf;                                                                \
@@ -644,8 +647,8 @@ void test_len(size_t len1, size_t len2, size_t len3, size_t wide) {
         mode::con<int, int> c;                                                              \
         char buf[10];                                                                       \
         start = clock();                                                                    \
-        for (size_t i = 0; i < count; ++i) c.emplace(mode::make_pair(rand(), rand()));      \
-        end   = clock();                                                                    \
+        for (size_t i = 0; i < (count); ++i) c.emplace(mode::make_pair(rand(), rand()));    \
+        end = clock();                                                                      \
         int n = static_cast<int>(static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000); \
         std::snprintf(buf, sizeof(buf), "%d", n);                                           \
         std::string t = buf;                                                                \

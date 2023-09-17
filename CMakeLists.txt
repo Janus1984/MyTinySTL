@@ -32,7 +32,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	endif()
 endif()
 
-option(address_sanitizer "open address sanitizer" ON)
+option(address_sanitizer "open address sanitizer" OFF)
 
 if(address_sanitizer)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=memory -fPIE -pie -fno-omit-frame-pointer -g")
